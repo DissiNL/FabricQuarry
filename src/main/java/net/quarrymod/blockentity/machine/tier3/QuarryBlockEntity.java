@@ -44,20 +44,18 @@ import net.quarrymod.items.IQuarryUpgrade;
 import org.jetbrains.annotations.Nullable;
 import reborncore.api.IToolDrop;
 import reborncore.api.blockentity.InventoryProvider;
-import reborncore.client.gui.slots.BaseSlot;
-import reborncore.client.screen.builder.ScreenHandlerBuilder;
 import reborncore.common.blockentity.MachineBaseBlockEntity;
 import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
 import reborncore.common.recipes.RecipeCrafter;
 import reborncore.common.screen.BuiltScreenHandler;
 import reborncore.common.screen.BuiltScreenHandlerProvider;
+import reborncore.common.screen.builder.ScreenHandlerBuilder;
+import reborncore.common.screen.slot.BaseSlot;
 import reborncore.common.util.RebornInventory;
 
 public class QuarryBlockEntity extends PowerAcceptorBlockEntity implements IToolDrop, InventoryProvider,
     BuiltScreenHandlerProvider {
 
-    // All ores are in "c" namespace
-    private static final Identifier ORE = new Identifier("c", "anything_here");
     private int rangeExtenderLevel;
     private int fortuneLevel;
     private boolean isSilkTouch;
@@ -448,13 +446,11 @@ public class QuarryBlockEntity extends PowerAcceptorBlockEntity implements ITool
             && !(block instanceof FluidBlock)
             && state.getHardness(world, blockPos) >= 0f
             && !isDrillTube(state)
-            && (getMineAll() || isOre(state, block));
+            && (getMineAll() || isOre(Registry.BLOCK.getId(block).toString()));
     }
 
-    private boolean isOre(BlockState state, Block block) {
-        return state.streamTags().anyMatch(t -> ORE.getNamespace().equals(t.id().getNamespace())) ||
-            QuarryMachineConfig.quarryAdditioanlBlocksToMine.contains(Registry.BLOCK.getId(block).toString());
-
+    private boolean isOre(String id) {
+        return id.endsWith("_ore") || QuarryMachineConfig.quarryAdditioanlBlocksToMine.contains(id);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -530,6 +526,7 @@ public class QuarryBlockEntity extends PowerAcceptorBlockEntity implements ITool
 
         return screenHandler.create(this, syncID);
     }
+
 
     @SuppressWarnings( {"java:S3011", "unchecked"})
     private void createUiUpgradeSlots(ScreenHandlerBuilder screenHandler) throws NoSuchFieldException, IllegalAccessException {
